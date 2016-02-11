@@ -1,0 +1,21 @@
+<% content_for :pageDescription do %>
+    Anotações
+<% end %>
+
+<% content_for :main do %>
+<form enctype="multipart/form-data" action="/videos/<%= @video.id %>/tagsUpload" accept-charset="UTF-8" method="post">
+		<input name="utf8" type="hidden" value="✓">
+		<input id="authenticity_token" type="hidden" name="authenticity_token" value="">
+		<input type="file" name="tagfile" id="video_tagfile">
+		<input type="submit" name="commit" value="Enviar">
+</form>
+
+<script>
+$(document).ready(function(){
+	$("#authenticity_token").val($("meta[name='csrf-token'").attr("content"));
+});
+</script>
+<% end %>
+
+
+<%= render 'shared/sbadmin/sb_admin' %>

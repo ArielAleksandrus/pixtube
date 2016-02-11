@@ -1,0 +1,22 @@
+<autocrud-list></autocrud-list>
+
+<div id="cruform{{autocrudID}}" class="modal fade" ng-controller="FormController as fCtrl">
+<div class="modal-dialog">
+<div class="modal-content">
+	<!-- Modal Header -->
+	<div class="modal-header custom-modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<h4 class="modal-title">{{ctrl.modalTitle}} {{objectProperties.name}}</h4>
+	</div>
+
+	<div class="modal-body">
+		<autocrud-form></autocrud-form>
+	</div>
+	<div class="modal-footer">
+		<autocrud-form-footer></autocrud-form-footer>
+	</div>
+</div>
+</div>
+</div>

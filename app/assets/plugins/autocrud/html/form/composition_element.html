@@ -1,0 +1,7 @@
+<div class="row">
+	<label ng-if="e.array != true" class="autocrud-common-label">{{e.label}}</label>
+	<div ng-repeat="c in e.composition" class="col-xs-{{c.size}}" ng-class="e.array != true ? 'autocrud-composition-element' : ''">
+		<label ng-if="e.array != true || $parent.$parent.$index == 0">{{c.label}}:</label>
+		<custom-input></custom-input>
+	</div>
+</div>

@@ -1,0 +1,32 @@
+<% content_for :javascripts do %>
+  <%= javascript_include_tag 'fileupload' %>
+<% end %>
+<% content_for :head do %>
+  <title>Upload</title>
+<% end %>
+
+<% content_for :pageDescription do %>
+Upload de vídeos
+<% end %>
+
+<% content_for :main do %>
+  <%= form_for @video, url: '/videos/upload/send' do |f| %>
+    <label>Título:</label>
+    <%= f.text_field :title, class: "form-control" %>
+    <br/>
+
+    <label>Descrição:</label>
+    <%= f.text_area :desc, class: "form-control", rows: "4" %>
+    <br/>
+
+    <label>Arquivo:</label>
+    <%= f.file_field :file, class: "form-control", accept: "video/mp4" %>
+
+    <br/>
+
+    <%= f.submit 'Enviar' %>
+  </div>
+  <% end %>
+<% end %>
+
+<%= render 'shared/sbadmin/sb_admin' %>

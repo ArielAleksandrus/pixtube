@@ -1,0 +1,29 @@
+<!-- Home é comum para todos -->
+<li>
+	<a href="/">
+		<i class="fa fa-fw fa-home"></i> Home
+	</a>
+</li>
+<!-- ======================= -->
+
+<!-- Usuários logados podem ver os vídeos -->
+<% if ["membro", "uploader", "admin"].include? current_usuario.try(:acesso) %>
+<li>
+	<a href="/videos">
+		<i class="fa fa-fw fa-video-camera"></i> Vídeos
+	</a>
+</li>
+<% end %>
+<!-- ======================= -->
+<% if ["uploader", "admin"].include? current_usuario.try(:acesso) %>
+<li>
+	<a href="/videos/upload">
+		<i class="fa fa-fw fa-upload"></i> Enviar vídeo
+	</a>
+</li>
+<% end %>
+<!-- Logout é comum para todos -->
+<li>
+    <a data-method="delete" href="/logout"><i class="fa fa-fw fa-power-off"></i> Logout</a>
+</li>
+<!-- ======================= -->

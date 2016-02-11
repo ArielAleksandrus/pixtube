@@ -1,0 +1,325 @@
+<% content_for :head do %>
+  <title><%= @video.title %></title>
+
+  <!-- Timeline -->
+  <%= javascript_include_tag 'plugins/timeline/vis.js' %>
+  <%= stylesheet_link_tag 'plugins/timeline/vis.min.css' %>
+
+  <!-- VideoJS -->
+  <%= javascript_include_tag 'plugins/videojs/videojs.js' %>
+  <%= stylesheet_link_tag 'plugins/videojs/videojs.css' %>
+
+
+  <%= javascript_include_tag 'groupinterval.js' %>
+<% end %>
+
+<% content_for :pageDescription do %>
+Listagem de videos
+<% end %>
+
+<br>
+
+<% content_for :main do %>
+  <div ng-app="pagina" ng-controller="PaginaController as pCtrl">
+  	<video id="video1" class="video-js" controls preload="auto" width="640" height="264" poster="{{pCtrl.video.poster}}"  src="<%= @video.file %>" angular-video>
+  		<source src="<%= @video.file %>" type="video/<%= @video.file.file.filename.last(3) %>">
+  	</video>
+
+  	<br/>
+
+  	<label>Nova anotação:</label>
+  	<br/>
+		<button ng-click="pCtrl.startTag()">Início</button>
+		<button ng-click="pCtrl.endTag()">Fim</button>
+		<br/><br/>
+		<input type="text" value="{{pCtrl.newTag.start_time / 1000 | number: 2}}" 
+		readonly/>
+		<input type="text" value="{{pCtrl.newTag.end_time / 1000 | number: 2}}" 
+		readonly/>
+		<input type="text" ng-model="pCtrl.newTag.comment" placeholder="Comentário"/>
+		<input type="text" ng-model="pCtrl.newTag.group" placeholder="Grupo"/>
+		<button ng-click="pCtrl.sendNewTag()">Enviar</button>
+		<br/><br/>
+		<div id="mytimeline"></div>
+  </div>
+<% end %>
+<%= render 'shared/sbadmin/sb_admin' %>
+
+<% content_for :javascripts do %>
+
+<script type="text/javascript">
+var _player1;
+var _timeline;
+var _epoch = new Date(1970,0,1,00,00,00);
+var _options;
+var _dados;
+var _grupos;
+var _id = 0;
+
+function checkGroups(arr, name){
+	var group = name;
+	var defaultGroup = "Outros";
+	var defaultGroupExists = false;
+
+	if(name == null || name == undefined || name == '')
+		group = defaultGroup; // set to default group.
+
+	for(var i in arr){
+		if(arr[i].id == name) // group already exists.
+			return;
+		if(arr[i].id == defaultGroup)
+			defaultGroupExists = true;
+	}
+
+	if(!defaultGroupExists)
+		arr.push({id: group, content: group});
+	else
+		arr.splice(arr.length - 1, 0, {id: group, content: group});
+}
+(function init(){
+	_player1 = videojs("video1");
+	_grupos = [
+	<% @video.tags.pluck(:group).uniq.each do |group| %>
+		{
+			id: <%== js_echo_var(group) %>,
+			content: "<button ng-click='pCtrl.playGroup(\"<%= group %>\")'><%= group %></button>"
+		},
+	<% end %>
+	];
+
+	// put item "Outros" in the end of the array.
+	for(var i in _grupos)
+		if(_grupos[i].content == "Outros"){
+			var outros = _grupos[i];
+			_grupos.splice(i, 1);
+			_grupos.push(outros);
+			break;
+		}
+
+	_dados = [
+		<% @video.tags.each do |tag| %>
+		{
+			id: _id++,
+			start: 		new Date(_epoch.getTime() + <%= tag.start_time %>),
+			end:			new Date(_epoch.getTime() + <%= tag.end_time %>),
+			content:	<%== js_echo_var(tag.comment) %>,
+			group: <%== js_echo_var(tag.group) %>
+		},
+		<% end %>
+	];
+
+	_options = {
+		showCurrentTime: true,
+		showMajorLabels: false,
+		min: _epoch.getTime(),
+		max: new Date(_epoch.getTime() + <%= @video.duration %>)
+	};
+	var container = document.getElementById('mytimeline');
+	_timeline = new vis.Timeline(container, _dados, _options);
+	_timeline.setGroups(new vis.DataSet(_grupos));
+})();
+</script>
+<script>
+var _video = {
+  id: <%= @video.id %>,
+  title: '<%= @video.title %>',
+  desc: <%== js_echo_var(@video.desc) %>,
+  views: <%= @video.views %>,
+  likes: '<%= @video.likes %>',
+  dislikes: '<%= @video.dislikes %>',
+  file: <%== js_echo_var(@video.file) %>,
+  poster: <%== js_echo_var(@video.poster) %>
+};
+
+
+(function(){
+	// if the user drags the timeline manually,
+	// we will disable autoAdjustTimelinePosition momentarily.
+	var start, end, disableAutoAdjustCount = 0;
+	var autoAdjustTimelinePosition = function(){
+		if(_player1.paused())
+			return;
+
+		var start2 = _timeline.getWindow().start.getTime() - _epoch.getTime();
+		if(start == null)
+			start = start2;
+		var end2 = _timeline.getWindow().end.getTime() - _epoch.getTime();
+		if(end == null)
+			end = end2;
+
+		if(start2 != start || end2 != end){
+			disableAutoAdjustCount = 10;
+			start = start2;
+			end = end2;
+		}
+		var playerTime = _player1.currentTime() * 1000;
+		if(disableAutoAdjustCount > 0){
+			disableAutoAdjustCount--;
+			return;
+		}
+		// 20s before reaching extremity
+		if(playerTime < start2 + 20000 || playerTime > end2 - 20000){
+			_timeline.moveTo(_epoch.getTime() + playerTime);
+			start = null;
+			end = null;
+		}
+	};
+
+	setInterval(autoAdjustTimelinePosition, 5000);
+
+
+	var app = angular.module('pagina', []);
+
+	app.service('DataService', ['$interval', function($interval){
+		var timebar;
+		for(var i in _timeline.components){
+			if(_timeline.components[i] instanceof vis.timeline.components.CurrentTime)
+				timebar = _timeline.components[i];
+		}
+
+		var group_playing = {
+			group_name: null,
+			timer: null,
+			intervals_to_play: [],
+			current_index: 0,
+			play: function(){
+				var gp = group_playing;
+				_player1.currentTime((gp.intervals_to_play[gp.current_index].start - _epoch.getTime()) / 1000);
+				_timeline.setCurrentTime(gp.intervals_to_play[gp.current_index].start);
+				gp.timer = $interval(gp.play_interval_func, 500);
+			},
+			stop: function(){
+				var gp = group_playing;
+				if(gp.timer != null){
+					$interval.cancel(gp.timer);
+					gp.timer = null;
+				}
+				gp.group_name = null;
+				gp.intervals_to_play = [];
+				gp.current_index = 0;
+			},
+			play_interval_func: function(){
+				var gp = group_playing;
+				var curInterval = gp.intervals_to_play[gp.current_index];
+				var end = (curInterval.end - _epoch.getTime()) / 1000;
+				if(end < _player1.currentTime()){
+					if(!!gp.intervals_to_play[++gp.current_index]){
+						_player1.currentTime((gp.intervals_to_play[gp.current_index].start - _epoch.getTime()) / 1000);
+						_timeline.setCurrentTime(gp.intervals_to_play[gp.current_index].start);
+					} else {
+						$interval.cancel(gp.timer);
+						gp.timer = null;
+						_player1.pause();
+					}
+				}
+			}
+		};
+
+		return {
+			group_playing: group_playing,
+			video: _video,
+			tl: _timeline,
+			tb: timebar,
+			pl: _player1,
+		};
+	}]);
+
+	app.controller('PaginaController', ['DataService', '$http', function(DataService, $http){
+		var ctrl = this;
+		var serv = DataService;
+
+		var group_playing = DataService.group_playing;
+
+		ctrl.video = serv.video;
+		var sample_tag = {
+			authenticity_token: $("meta[name='csrf-token']").attr("content"),
+			start_time: null,
+			end_time: null,
+			comment: '',
+			group: ''
+		};
+		ctrl.newTag = globalUtils.helpers.clone(sample_tag);
+
+		ctrl.startTag = function(){
+			var start = serv.pl.currentTime() * 1000;
+			var end = ctrl.newTag.end_time;
+			if(end != null && start > end)
+				ctrl.newTag.end_time = start;
+
+			ctrl.newTag.start_time = start;
+		};
+		ctrl.endTag = function(){
+			var end = serv.pl.currentTime() * 1000;
+			var start = ctrl.newTag.start_time;
+			if(start != null && start > end)
+				ctrl.newTag.start_time = end;
+
+			ctrl.newTag.end_time = end;
+		};
+
+		ctrl.sendNewTag = function(){
+			$http.post('/videos/<%= @video.id %>/newTag', ctrl.newTag)
+			.then(function successCallback(response){
+				if(response.data.status == "success"){
+					checkGroups(_grupos, ctrl.newTag.group);
+					_timeline.setGroups(new vis.DataSet(_grupos));
+					if(ctrl.newTag.group == "" || ctrl.newTag.group == null || ctrl.newTag.group == undefined)
+						ctrl.newTag.group = "Outros";
+					var item = {
+						id: _id++,
+						start: 		new Date(_epoch.getTime() + ctrl.newTag.start_time),
+						end:			new Date(_epoch.getTime() + ctrl.newTag.end_time),
+						content:	ctrl.newTag.comment,
+						group: ctrl.newTag.group
+					};
+					_dados.push(item);
+					_timeline.setItems(_dados);
+					ctrl.newTag = globalUtils.helpers.clone(sample_tag);
+				} else {
+					alert("Não foi possível inserir a anotação.");
+				}
+				console.log(response);
+			}, function errorCallback(response){
+				alert("Não foi possível inserir a anotação. Erro do servidor.");
+			});
+		};
+		ctrl.playGroup = function(grupo){
+			group_playing.stop();
+			group_playing.name = grupo;
+			var x = [];
+			for(var i in _dados)
+				if(_dados[i].group == grupo)
+					x.push({start: _dados[i].start.getTime(), end: _dados[i].end.getTime()});
+
+			var gi = new GroupInterval(x);
+			gi.process();
+			group_playing.intervals_to_play = gi.getResult();
+			group_playing.play();
+		};
+		return ctrl;
+	}]);
+	app.directive('angularVideo', ['DataService', function(DataService){
+		var serv = DataService;
+		return {
+			restrict: 'A',
+			link: function(scope, element, attrs){
+				serv.pl.on('play', function(event){
+					serv.tb.setCurrentTime(_epoch.getTime() + serv.pl.currentTime() * 1000);
+					serv.tb.start();
+				});
+				serv.pl.on('pause', function(event){
+					serv.tb.stop();
+				});
+				serv.tl.on('select', function(properties){
+					DataService.group_playing.stop();
+					var id = properties.items[0];
+					var row = _dados[id];
+					serv.pl.currentTime((row.start.getTime()-_epoch.getTime()) / 1000);
+					serv.tb.setCurrentTime(row.start);
+				});
+			}
+		}
+	}]);
+})();
+</script>
+<% end %>

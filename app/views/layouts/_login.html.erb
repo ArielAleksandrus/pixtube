@@ -1,0 +1,28 @@
+<% content_for :javascripts do %>
+	<%= javascript_include_tag 'login.js' %>
+<% end %>
+
+<% content_for :stylesheets do %>
+	<%= stylesheet_link_tag 'login.css' %>
+<% end %>
+
+<div ng-app="login">
+<div class="main-container" ng-controller="LoginController as lCtrl">
+	<img src="resources/images/logo/pixellab.jpg" class="logo"/>
+	<div id="mensagem" style="display:none">
+		<div class="alert alert-danger alert-dismissible" role="alert">
+			<button type="button" class="close" ng-click="lCtrl.closeAlert()">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			<strong>{{lCtrl.alert.title}}:</strong> {{lCtrl.alert.msg}}
+		</div>
+	</div>
+	<form ng-submit="lCtrl.send()">
+		<input type="text" placeholder="Usuário:" class="form-control" ng-model="lCtrl.aux.username" />
+		<input type="password" placeholder="Senha:" class="form-control input-senha"
+			ng-model="lCtrl.aux.password"/>
+		<div class="lembrar"><input type="checkbox" ng-model="lCtrl.aux.remember_me"/> Lembrar</div>
+		<button type="submit" class="btn btn-md btn-primary submit">Login</button>
+	</form>
+</div>
+</div>

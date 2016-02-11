@@ -1,0 +1,16 @@
+<!-- handles date and datetime -->
+<span ng-if="e.mode == 'date' || e.mode == 'datetime'" class="input-group">
+	<input name="e.name" type="text" class="form-control" ng-model="model"
+	 is-open="openedDP[e.label]" max-date="e.attrs.maxdate" 
+	 current-text="Hoje" class="form-control" popover="{{e.error}}"
+	 enable-date="e.mode === 'date' || e.mode === 'datetime'" 
+	 ng-disabled="!e.edit"
+	 datetime-picker="dd/MM/yyyy{{e.mode != 'date' ? ' HH:mm' : ''}}"
+	 enable-time="e.mode === 'datetime' || e.mode === 'time'" min-date="e.attrs.mindate"/>
+	<span class="input-group-btn">
+		<button type="button" class="btn btn-default"
+		 ng-click="toggleDatePicker(e.label,$event)">
+			<i class="glyphicon glyphicon-calendar"></i>
+		</button>
+	</span>
+</span>

@@ -1,0 +1,30 @@
+.autocrud-table-row td {
+  cursor: pointer; }
+
+.autocrud-listing-image, .autocrud-listing-image-small, .autocrud-listing-image-medium, .autocrud-listing-image-big {
+  float: left; }
+
+.autocrud-listing-image-small {
+  width: 50px;
+  max-height: 60px; }
+
+.autocrud-listing-image-medium {
+  width: 80px;
+  max-height: 96px; }
+
+.autocrud-listing-image-big {
+  width: 120px;
+  max-height: 145px; }
+
+.autocrud-listing-image-composition {
+  float: left;
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 120px; }
+  .autocrud-listing-image-composition img {
+    float: none !important;
+    width: 100px;
+    height: 100px; }
+  .autocrud-listing-image-composition span {
+    display: block; }

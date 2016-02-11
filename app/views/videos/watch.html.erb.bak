@@ -1,0 +1,263 @@
+<% content_for :head do %>
+  <title><%= @video.title %></title>
+
+  <!-- Timeline -->
+  <%= javascript_include_tag 'timeline/timeline.js' %>
+  <%= stylesheet_link_tag 'timeline/timeline.css' %>
+
+  <!-- VideoJS -->
+  <link href="http://vjs.zencdn.net/5.3.0/video-js.css" rel="stylesheet">
+  <script src="http://vjs.zencdn.net/5.3.0/video.js"></script>
+
+  <!-- Google JS API -->
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<% end %>
+
+<% content_for :pageDescription do %>
+Listagem de videos
+<% end %>
+
+<br>
+
+<% content_for :main do %>
+  <div ng-app="pagina" ng-controller="PaginaController as pCtrl">
+  	<video id="video1" class="video-js" controls preload="auto" width="640" height="264" poster="{{pCtrl.video.poster}}"  src="<%= @video.file %>">
+  		<source src="<%= @video.file %>" type="video/<%= @video.file.file.filename.last(3) %>">
+  	</video>
+
+  	<br/>
+
+		<div id="mytimeline"></div>
+  </div>
+<% end %>
+<%= render 'shared/sbadmin/sb_admin' %>
+
+<% content_for :javascripts do %>
+<script>
+var _video = {
+  id: <%= @video.id %>,
+  title: '<%= @video.title %>',
+  desc: <%== js_echo_var(@video.desc) %>,
+  views: <%= @video.views %>,
+  likes: '<%= @video.likes %>',
+  dislikes: '<%= @video.dislikes %>',
+  file: <%== js_echo_var(@video.file) %>,
+  poster: <%== js_echo_var(@video.poster) %>
+};
+
+
+(function(){
+	var app = angular.module('pagina', []);
+	app.controller('PaginaController', function(){
+		var ctrl = this;
+		ctrl.video = _video;
+		return ctrl;
+	});
+})();
+</script>
+<script type="text/javascript">
+
+
+var video = videojs("video1");
+var dataTable = undefined;
+var timeline = undefined;
+var t = new Date(1970,0,1,00,00,00);
+/*var dados = [
+	[new Date(t.getTime()), new Date(t.getTime()+8000), 'Apresentação dos palestrantes', 'Apresentação'],
+	[new Date(t.getTime()+38000), new Date(t.getTime()+130000), 'Princípios do desenvolvimento WEB', 'Introdução'],
+	[new Date(t.getTime()+139000), new Date(t.getTime()+260000), 'Origem do Angular', 'Introdução'],
+	[new Date(t.getTime()+10000), new Date(t.getTime()+330000), 'Introdução à framework', 'Introdução'],
+	[new Date(t.getTime()+330000), new Date(t.getTime()+422000), 'Primeiro exemplo', 'Exemplos'],
+	[new Date(t.getTime()+334000), new Date(t.getTime()+495000), 'Explicação sobre data binding', 'Componentes'],
+	[new Date(t.getTime()+536000), new Date(t.getTime()+770000) , 'Explicação sobre controllers', 'Componentes'],
+	[new Date(t.getTime()+778000), new Date(t.getTime()+865000) , 'Teste do software', 'Funcionalidades'],
+];*/
+var dados = [
+	<% @video.tags.each do |tag| %>
+		[new Date(t.getTime() + <%= tag.start_time %>),
+			new Date(t.getTime() + <%= tag.end_time %>),
+			<%== js_echo_var(tag.comment) %>,
+			<%== js_echo_var(tag.group) %>],
+	<% end %>
+];
+
+
+	google.load("visualization", "1");
+
+	// Set callback to run when API is loaded
+	google.setOnLoadCallback(drawVisualization);
+
+	function getSelectedRow() {
+		var row = undefined;
+		var sel = timeline.getSelection();
+		if (sel.length) {
+			if (sel[0].row != undefined) {
+				row = sel[0].row;
+			}
+		}
+		return row;
+	}
+
+	// Called when the Visualization API is loaded.
+	function drawVisualization() {
+		// Create and populate a dataTable table.
+		dataTable = new google.visualization.DataTable();
+		dataTable.addColumn('datetime', 'start');
+		dataTable.addColumn('datetime', 'end');
+		dataTable.addColumn('string', 'content');
+		dataTable.addColumn('string', 'group');
+
+		dataTable.addRows(dados);
+
+		// specify options
+		var options = {
+			width:  "100%",
+			height: "300px",
+			editable: true // make the events dragable
+		};
+
+		// Instantiate our timeline object.
+		timeline = new links.Timeline(document.getElementById('mytimeline'), options);
+
+		// Make a callback function for the select event
+		var onselect = function (event) {
+			var proximo_comeco = -1;
+			var proximo_comeco_time = -1;
+			var handleSelection = function(e){
+				if(video.currentTime() >= (selection_end_time/1000)){
+					if(proximo_comeco > -1){
+						timeline.setSelection([{row: proximo_comeco}]);
+						onselect(event);
+						//video.currentTime(proximo_comeco_time/1000);
+					}
+					else
+						video.pause();
+					
+					video.off('timeupdate', handleSelection);
+				}
+			}
+			video.off('timeupdate', handleSelection);
+			var row = getSelectedRow();
+			try{
+				if(typeof row == 'string')
+					row = parseInt(row);
+				var comeco = timeline.getItem(row).start;
+				var fim = timeline.getItem(row).end;
+				
+				var minimo = 99999999999999;
+				var inicio_selecao = comeco.getTime();
+				for(var i in dados){
+					var inicio_dados_i = dados[i][0].getTime();
+					if(inicio_dados_i > inicio_selecao && inicio_dados_i < minimo){
+						minimo = inicio_dados_i;
+						proximo_comeco = i;
+					}
+						
+				}
+			} catch(e){
+				console.log(e);
+				return;
+			}
+			
+			if(!!comeco)
+				var selection_start_time = 
+					((comeco.getHours() * 3600) + (comeco.getMinutes() * 60) + comeco.getSeconds()) * 1000;
+			if(!!fim)
+				var selection_end_time = 
+					((fim.getHours() * 3600) + (fim.getMinutes() * 60) + fim.getSeconds()) * 1000;
+			/*if(proximo_comeco > -1){
+				var proximo_comeco_date = dados[proximo_comeco][0];
+				proximo_comeco_time =
+					((proximo_comeco_date.getHours() * 3600) + (proximo_comeco_date.getMinutes() * 60) + proximo_comeco_date.getSeconds()) * 1000;
+			}*/
+			
+			video.currentTime(selection_start_time/1000);
+			
+
+			if(!!fim){
+				video.on('timeupdate', handleSelection);
+			}
+			else{
+				video.pause();
+			}
+			
+			// Note: you can retrieve the contents of the selected row with
+			//       dataTable.getValue(row, 2);
+		}
+
+		// callback function for the change event
+		var onchanged = function (event) {
+			// retrieve the changed row
+			var row = getSelectedRow();
+			if (row != undefined) {
+				// request approval from the user.
+				// You can choose your own approval mechanism here, for example
+				// send dataTable to a server which responds with approved/denied
+				var approve = confirm("Are you sure you want to move the event?");
+
+				if (approve)  {
+					document.getElementById("info").innerHTML += "event " + row + " changed<br>";
+				} else {
+					// new date NOT approved. cancel the change
+					timeline.cancelChange();
+
+					document.getElementById("info").innerHTML += "change of event " + row + " cancelled<br>";
+				}
+			}
+		};
+
+		// callback function for the delete event
+		var ondelete = function (event) {
+			// retrieve the row to be deleted
+			var row = getSelectedRow();
+
+			if (row != undefined) {
+				// request approval from the user.
+				// You can choose your own approval mechanism here, for example
+				// send dataTable to a server which responds with approved/denied
+				var approve = confirm("Are you sure you want to delete the event?");
+
+				if (approve)  {
+					document.getElementById("info").innerHTML += "event " + row + " deleted<br>";
+				} else {
+					// new date NOT approved. cancel the change
+					timeline.cancelDelete();
+
+					document.getElementById("info").innerHTML += "deleting event " + row + " cancelled<br>";
+				}
+			}
+		};
+
+
+		// callback function for adding an event
+		var onadd = function (event) {
+			// retrieve the row to be deleted
+			var row = getSelectedRow();
+			if (row != undefined) {
+				// request approval from the user.
+				// You can choose your own approval mechanism here, for example
+				// send dataTable to a server which responds with approved/denied
+				var title = prompt("Enter a title for the new event", "New event");
+
+				if (title != undefined)  {
+					dataTable.setValue(row, 2, title);
+					timeline.redraw();
+				} else {
+					// cancel adding a new event
+					timeline.cancelAdd();
+				}
+			}
+		}
+
+		// Add event listeners
+		google.visualization.events.addListener(timeline, 'select', onselect);
+		google.visualization.events.addListener(timeline, 'changed', onchanged);
+		google.visualization.events.addListener(timeline, 'delete', ondelete);
+		google.visualization.events.addListener(timeline, 'add', onadd);
+
+		// Draw our timeline with the created dataTable and options
+		timeline.draw(dataTable);
+	}
+	
+</script>
+<% end %>

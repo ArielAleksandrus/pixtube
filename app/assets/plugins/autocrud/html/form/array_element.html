@@ -1,0 +1,32 @@
+<div class="autocrud-array-element" ng-init="fCtrl.checkArrayLength(e)">
+	<!-- If there is no composition, the label stays outside the div where items repeat.
+		If there is composition, then the label will be handled inside it's element -->
+	<label ng-class="!!e.composition || (e.chars.type == 'file' && e.array == true) ? 'autocrud-composition-parent-label' : 'autocrud-common-label'">{{e.label}}</label>
+
+	<!-- Shows errors to user related to array minlength and maxlength -->
+	<div ng-show="!!fCtrl['form' + fCtrl.activeTabIndex].$error[e.name + 'MaxLength'] || !!fCtrl['form' + fCtrl.activeTabIndex].$error[e.name + 'MinLength']" 
+	 class="alert alert-danger" role="alert">
+		<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+		<span class="sr-only">Erro:</span>
+		Deve haver {{!!e.arrayMinLength && !!e.arrayMaxLength ? "entre " + e.arrayMinLength + " e " + e.arrayMaxLength : ("no " + (!!e.arrayMinLength ? "mínimo " + e.arrayMinLength : "máximo " + e.arrayMaxLength))}} itens
+	</div>
+
+	<div ng-repeat="a in fCtrl.curItem[e.name] track by $index" class="row" style="position:relative;">
+		<autocrud-composition-element ng-if="!!e.composition"></autocrud-composition-element>
+
+		<div ng-if="e.composition == null || e.composition == undefined" class="col-xs-10">
+			<autocrud-file-element ng-if="e.chars.type == 'file'"></autocrud-file-element>
+			<custom-input ng-if="e.chars.type != 'file'"></custom-input>
+		</div>
+		<div class="col-xs-1" ng-class="e.chars.type == 'file' ? 'autocrud-file-array-remove' : ''">
+			<button class="btn btn-md btn-danger" ng-class="!!e.composition && $index == 0 ? 'autocrud-array-remove' : ''" ng-click="fCtrl.removeArrayElement(e, a, $index)" ng-if="e.arrayEdit != false">
+				<i class="glyphicon glyphicon-minus"></i>
+			</button>
+		</div>
+	</div>
+	<div style="width:100%;text-align:center;padding-bottom:10px" ng-if="e.arrayEdit != false">
+		<button class="btn btn-md btn-success autocrud-array-add" ng-click="fCtrl.addArrayElement(e)">
+			<i class="glyphicon glyphicon-plus"></i>
+		</button>
+	</div>
+</div>

@@ -1,0 +1,5 @@
+1. tocar por grupo (nao repetir (uniao de conjuntos))
+2. video - tageamento (1 - n)
+3. possibilidade de fazer merge de todos os tageamentos do video.
+4. download do json.
+5. pesquisar congresso video interativo.

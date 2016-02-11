@@ -1,0 +1,15 @@
+.custom-form-wrapper{
+	max-width: 500px;
+}
+.custom-form-wrapper .form-control{
+	margin-bottom: 10px;
+}
+.current-image{
+	max-width: 200px;
+}
+.ng-invalid.ng-dirty:not(.btn){
+	border-color:#FA787E !important;
+}
+.ng-valid.ng-dirty:not(.btn){
+	border-color:#78FA89 !important;
+}

@@ -1,0 +1,299 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"/>
+		<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script src="https://code.angularjs.org/1.4.7/angular.min.js"></script>
+		<script src="dependencies/angular-ui/ui-bootstrap-tpls-0.14.0.js"></script>
+		<script src="dependencies/angular-animate/angular-animate.js"></script>
+		<script src="utils.js"></script>
+		<script src="auto-crud.js"></script>
+		<script src="formcontroller.js"></script>
+		<script src="inputshandler.js"></script>
+		<script src="mount-html.js"></script>
+		<script src="datetimepicker.js"></script>
+		<script src="directives.js"></script>
+		<script src="fileupload.js"></script>
+
+		<style>
+		code {
+			white-space: pre;
+		}
+		.docs-section{
+			width: 80%;
+			max-width: 800px;
+			margin: auto;
+			padding-top: 50px;
+			font-size: 125%;
+		}
+		.tip-alert{
+			font-size:86%;
+		}
+		</style>
+	</head>
+	<body>
+
+	<!-- Top navbar -->
+	<nav class="navbar navbar-default navbar-fixed-top">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="#autocrud-introduction">Autocrud</a>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      <ul class="nav navbar-nav">
+	        <li><a href="#dependencies">Dependencies <span class="sr-only">(current)</span></a></li>
+	        <li><a href="#installation">Installation</a></li>
+	        <li class="dropdown">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Usage <span class="caret"></span></a>
+	          <ul class="dropdown-menu">
+	            <li><a href="#paginate-options">Paginate Options</a></li>
+	            <li><a href="#server-communication">Server communication</a></li>
+	            <li><a href="#declaring-attributes">Declaring your object's attributes</a></li>
+	            <li><a href="#data-format">The required data format</a></li>
+	          </ul>
+	        </li>
+	        <li><a href="#examples">Examples</a></li>
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+	<div style="margin-top: 50px"></div>
+	<div id="autocrud-introduction" class="docs-section">
+		<h2>Introduction</h2>
+		<hr/>
+		Autocrud is an AngularJS & AngularUI Bootstrap based HTML tool for creating CRUD operations by defining the data model on a JSON.
+		<hr/>
+	</div>
+	<div id="dependencies" class="docs-section">
+		<h2>1. Dependencies</h2>
+		<hr/>
+		Autocrud depends on <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap</a>, <a href="https://angular-ui.github.io/bootstrap/">Angular UI Bootstrap</a>, <a href="https://github.com/michaelbromley/angularUtils/tree/master/src/directives/pagination">Pagination Directive</a>, <a href="https://github.com/nakupanda/bootstrap3-dialog">bootstrap-dialog</a> and <a href="https://github.com/Gillardo/bootstrap-ui-datetime-picker">bootstrap-ui-datetime-picker</a>.
+		<br/>
+		<br/>
+		Unfortunately, both bootstrap-ui-datetime-picker Angular UI Bootstrap didn't meet our requirements, so we had to <a href="dependencies/angular-ui/ui-bootstrap-tpls-0.14.0.js">make changes to their tools</a>. Therefore, it is <strong>recommended</strong> to use the files included in Autocrud. The changes made are explained there, so if you want to use a newer version of Angular UI Bootstrap, you shouldn't have much trouble adapting it to accomodate Autocrud.
+		<hr/>
+	</div>
+	<div id="installation" class="docs-section">
+		<h2>2. Installation</h2>
+		<hr/>
+		Please make sure you have met all of the <a href="#dependencies">requirements</a> above.
+		<br/>
+		<br/>
+		Installation is fairly easy. Unzip the file in your project (e.g. app/assets/plugins/) so that you have the folder named "autocrud" (e.g. app/assets/plugins/autocrud).
+
+		Then, include all js and css files in your html page. Or, you can include only the .min.js and .min.css
+		<hr/>
+	</div>
+	<div id="usage" class="docs-section">
+		<h2>3. Usage</h2>
+		<hr/>
+		To use this tool, you'll need to declare:
+		<ul>
+			<li>your data in the <a href="#data-format">correct format</a></li>
+			<li>how the <a href="#server-communication">server communication</a> (a.k.a. objectProperties) will take place</li>
+			<li>the <a href="declaring-attributes">attributes</a> of the object you are CRUDing</li>
+			<li>the tool's path, without the '/' symbol in the end (e.g.: "assets/plugins/autocrud")</li>
+		</ul>
+		<br/>
+		<br/>
+		You'll then need to pass them through <i>crudable</i> directive:
+		<br/>
+<xmp class="prettyprint">
+<div ng-controller="MyController as myCtrl">
+  <crudable attrs="myCtrl.attrs" data="myCtrl.data" paginate-options="myCtrl.paginateOptions"
+   object-properties="myCtrl.objectProperties" plugin-path="/assets/plugins/autocrud">
+  </crudable>
+</div>
+</xmp>
+		<hr/>
+		<div id="paginate-options">
+			<h3>3.1. Paginate Options</h3>
+			<br/>
+			Please check the <a href="https://github.com/michaelbromley/angularUtils/tree/master/src/directives/pagination">Pagination Directive</a> project for supported options if you want to customize it's behavior. These options should be declared in a JSON, for example:
+			<br/>
+<code class="prettyprint">
+{
+  itemsPerPage: 10
+}
+</code>
+		</div>
+		<div id="server-communication">
+			<h3>3.2. Server Communication</h3>
+			<br/>
+			Tells what URL, method and data to send along with the form for each operation (create, update, delete). Also, specifies which URL will handle "unique index" attributes (the method for this request is POST). Default URL is the current one. Default method is POST. For example:
+
+<code class="prettyprint">
+{
+  name: 'client',
+  baseUrl: 'clients',
+  uniqueUrl: 'unique',
+  creates: {
+    url: 'new',
+    also: {
+        utf8: 'true',
+        authenticity_token: 'a token here'
+    }
+  },
+  edits: {
+    url: ':id',
+    method: 'patch',
+    also: {
+        utf8: true,
+        authenticity_token: 'a token here'
+    }
+  },
+  deletes: {
+    url: ':id',
+    method: 'delete',
+    also: {
+        authenticity_token: 'a token here'
+    }
+  }
+}
+</code>
+
+			If you don't specify for a specific operation, then the user will not be able to handle that operation. For example, if you omit <i>deletes</i>, the button "Remove" will not be shown to the user. If you omit <i>edits</i>, the user will not be able to change the inputs's contents.
+			<br/>
+		</div>
+		<div id="declaring-attributes">
+			<h3>3.3. Declaring your object's attributes</h3>
+			<br/>
+			<h4>3.3.1. Object's attributes</h4>
+			<br/>
+			The attributes of your object, and it's description, declared in a JSON:
+			<ul>
+			  <li><b>array</b> (default <i>false</i>): Tells if the input is an array, i.e., if you can have multiple values.</li>
+			  <li><b>arrayMaxLength</b>: If the input is array, this defines the maximum elements you should have.</li>
+			  <li><b>arrayMinLength</b>: If the input is array, this defines the minimum elements you should have.</li>
+			  <li><b>composition</b>: If a data is bound by multiple inputs, for example: phone number (a string) and phone type (a select of "Residential", "Cell phone", "Work"). Please note that you <b>must not</b> have both "composition" and "description" together.</li>
+			  <li><b>description</b>: Array that describes the input. The first element should be a string that represents the type of the attribute. See <a href="#attribute-description">section below</a> for supported description's attributes.</li>
+			  <li><b>error</b>: Message to be shown to the user if input has error. Can be a string or an array (e.g.: ['Name should have between 4 and 32 letters', 'No numbers are allowed']).</li>
+			  <li><b>format</b> (default <i>"dd/MM/yyyy HH:mm:ss"</i>): For date, time and datetime inputs, specifies the format to be exhibited</li>
+			  <li><b>html</b>: This is used for <i>custom</i> elements. If there is an input that Autocrud does not provide for you, you can declare the html for the input yourself, but please note that you should have this only if you declare in <i>description</i> attribute that your element is of type "custom" (see description attributes <a href="#attribute-description">section below</a>).</li>
+			  <li><b>label</b>: The name of the attribute that will be shown to the user (e.g.: Name, Address, Phone number, Birth date, etc).</li>
+			  <li><b>list</b> (default <i>true</i>): Tells if the attribute should be listed.</li>
+			  <li><b>name</b>: The name of the attribute (e.g.: name, address, phone_number, birthDate, etc)</li>
+			  <li><b>onForm</b> (default <i>true</i>): Tells if the attribute should be present on form for display/editing.
+			  <li><b>size</b> (default <i># of inputs &divide; 11</i>): For composition elements, it's the size of the input regarding bootstrap's col-xs-(size). In case of array elements, don't add up to 12 as there should be space for the row deletion button.</li>
+			  <li><b>tab</b>: A string that tells on which tab of the form this attribute should be in (e.g.: 'General Information', 'Personal Information', 'Stats', etc).</li>
+  		</ul>
+			<br/>
+			<h4 id="attribute-description">3.3.2. Supported values for attribute description</h4>
+			<br/>
+			The attribute description must be an array of strings. The first string tells the type of the input. Supported types are:
+			<ul>
+				<li>id (will not appear on form. It's sent to the server when an object is edited)</li>
+		    <li>checkbox</li>
+		    <li>composition</li>
+		    <li>custom</li>
+		    <li>date</li>
+		    <li>datetime</li>
+		    <li>email</li>
+		    <li>file</li>
+		    <li>float</li>
+		    <li>number</li>
+		    <li>int</li>
+		    <li>password</li>
+		    <li>phone</li>
+		    <li>price</li>
+		    <li>select</li>
+		    <li>text</li>
+		    <li>textarea</li>
+		    <li>time</li>
+		    <li>typeahead</li>
+			</ul>
+			<br/>
+			For file types, you can specify in the second string the type of the file. Supported types are:
+			<ul>
+				<li>image</li>
+			</ul>
+			<br/>
+			There are other arguments that Autocrud supports in order to help you out:
+			<br/>
+			<br/>
+			For date and datetime:
+			<ul>
+				<li>mindate</li>
+				<li>maxdate</li>
+				<li>nopast</li>
+				<li>nofuture</li>
+			</ul>
+			<br/>
+			For arrays of selects and typeaheads
+			<ul>
+				<li>no-repeat</li>
+			</ul>
+			<br/>
+			For any input:
+			<ul>
+				<li>unique-index</li>
+			</ul>
+			<br/>
+			<br/>
+			Any other arguments will be translated as an html attribute. For example:
+			<br/>
+			<code class="prettyprint">'style=color:blue;font-size:14px'</code> and <code class="prettyprint">'disabled'</code>
+			<br/>
+			will be translated to
+			<br/>
+			<code class="prettyprint">style="color:blue;font-size:14px;"</code> and <code class="prettyprint">disabled="disabled"</code>
+			<br/>
+			<br/>
+			<div class="alert alert-warning tip-alert" role="alert">
+				<label><i class="fa fa-lightbulb-o"></i> Tip:</label>
+				<br/>
+				Don't use quotes after '=' sign in the <i>description</i> arguments.
+				<br/>
+				Arguments with no '=' sign will have the <i>value</i> equal to the <i>key</i>, just like in the "disabled" example above.
+			</div>
+		</div>
+		<div id="data-format">
+			<h3>3.4. The required data format</h3>
+			<br/>
+			The data should be passed to the tool in a specific format. What you should pay most attention is:
+			<br/>
+			<br/>
+			<b>Respect the data types:</b> numbers should be declared in the JSON as numbers and not strings, <b>except</b> if data type is "price" (to avoid problems with decimals ending with 0 after the '.'). Same goes for booleans. So do not do this: <code class="prettyprint">{id: "3", accepted: "false"}</code>
+			<br/>
+			Instead, do this: <code class="prettyprint">{id: 3, accepted: false}</code>
+			<br/>
+			<br/>
+			<b>Time</b> must be a Javascript Date object.
+			<br/>
+			<br/>
+			<b>File</b> must be an array of strings, even if it you're dealing with a single file. The string path(s) should be surrounded by brackets, like: <code class="prettyprint">{profile_pic: ['file1.jpg']}</code> instead of <code class="prettyprint">{profile_pic: 'file1.jpg'}</code>
+			<br/>
+		</div>
+		<hr/>
+		</div>
+	</div>
+	<div id="examples" class="docs-section">
+		<h2>4. Examples</h2>
+		<hr/>
+		The easiest way to learn how to use the tool is to check the examples!
+		<br/>
+		<br/>
+		<ul>
+			<li><a href="">Simple usage</a></li>
+			<li><a href="">Compositions, Arrays, Arrays of composition</a></li>
+			<li><a href="">No Delete, no Create, no Update</a></li>
+		</ul>
+		<hr/>
+	</div>
+	<br/>
+	<hr/>
+	</body>
+</html>

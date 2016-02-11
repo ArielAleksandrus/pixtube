@@ -1,0 +1,39 @@
+<!-- Tabs -->
+<div ng-if="fCtrl.tabs.length > 0 && fCtrl.tabs[0] !== 'Outros'"
+ class="container custom-tab-heading">
+	<ul class="nav nav-tabs">
+		<li ng-repeat="t in fCtrl.tabs track by $index" class="nav"
+		 ng-class="{'active': fCtrl.activeTab == t,
+		 'nav-danger': fCtrl['form' + $index].$invalid}">
+			<a id="formtab{{$index}}" data-toggle="tab" ng-click="fCtrl.setActiveTab(t)"
+			 class="autocrud-hand-cursor" style="cursor:pointer">
+				{{t}}
+			</a>
+		</li>
+	</ul>
+</div>
+<!-- Form error message -->
+<div ng-show="fCtrl.hasAnyErrorOnForms()" 
+ class="alert alert-danger" role="alert">
+	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+	<span class="sr-only">Erro:</span>
+	O formulário contém erros. Por favor corrija-os.
+</div>
+
+<!-- Form -->
+<form name="fCtrl.form{{$index}}" ng-repeat="t in fCtrl.tabs track by $index" 
+ ng-init="activeForm = $index" ng-show="fCtrl.activeTab == t" novalidate>
+	<input name="validityControl" type="hidden"/>
+	<hr/>
+	<div ng-repeat="e in fCtrl.tabsElements[t]" ng-if="e.onForm == undefined || e.onForm == true || (!!e.onForm && fCtrl.formMode == e.onForm)">
+		<autocrud-array-element ng-if="e.array"></autocrud-array-element>
+		<autocrud-composition-element ng-if="!e.array && !!e.composition"></autocrud-composition-element>
+		<autocrud-file-element ng-if="!e.array && e.chars.type == 'file'"></autocrud-file-element>
+		<div ng-if="!e.array && (e.composition == null || e.composition == undefined) && e.chars.type != 'file'">
+			<label class="autocrud-common-label">{{e.label}}:</label>
+			<custom-input></custom-input>
+		</div>
+		<br/>
+	</div>
+</form>
+</div>

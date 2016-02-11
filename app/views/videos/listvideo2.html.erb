@@ -1,0 +1,30 @@
+<% content_for :main do %>
+	<div ng-app="pagina" ng-controller="PaginaController as pCtrl">
+		<% @videos.each do |video| %>
+		<div>
+			<label ng-click="pCtrl.clickVideo(<%= video.id %>)"><%= video.title %></label>
+			<br/>
+			<img src="<%= video.poster %>" width="320" height="180" ng-click="pCtrl.clickVideo(<%= video.id %>)"/>
+			<div>
+				<%= video.desc %>
+			</div>
+			<span><%= Time.at(video.duration/1000).utc.strftime("%H:%M:%S") %></span>
+		</div>
+		<hr/>
+		<% end %>
+	</div>
+<% end %>
+<script>
+(function(){
+var app = angular.module('pagina', []);
+app.controller('PaginaController', function(){
+	var ctrl = this;
+	ctrl.clickVideo = function(id){
+		location = '/videos/watch/' + id;
+	};
+
+	return ctrl;
+});
+})();
+</script>
+<%= render 'shared/sbadmin/sb_admin' %>

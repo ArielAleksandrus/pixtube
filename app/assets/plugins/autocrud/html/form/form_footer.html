@@ -1,0 +1,15 @@
+<span style="float:left" ng-if="!!fCtrl.objectProperties.deletes && (fCtrl.formMode == 'edit' || fCtrl.formMode == 'delete')">
+	<button class="btn btn-md btn-danger" ng-click="fCtrl.formMode = 'delete';fCtrl.send()">
+		Remover
+	</button>
+</span>
+<span ng-repeat="t in fCtrl.tabs track by $index">
+	<button class="btn btn-md btn-success" ng-click="fCtrl.send()"
+	 ng-disabled="fCtrl.hasAnyErrorOnForms() || fCtrl['form' + $index].$pristine"
+	 ng-show="fCtrl.activeTab == t && ((fCtrl.formMode == 'edit' && !!fCtrl.objectProperties.edits) || fCtrl.formMode == 'create')">
+		Enviar
+	</button>
+</span>
+<button class="btn btn-md btn-default" ng-click="fCtrl.closeModal()">
+	Fechar
+</button>

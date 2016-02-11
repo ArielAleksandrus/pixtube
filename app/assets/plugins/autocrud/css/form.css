@@ -1,0 +1,74 @@
+form .ng-invalid.ng-dirty {
+  border-color: #FA787E !important; }
+
+form .ng-valid.ng-dirty {
+  border-color: #78FA89 !important; }
+
+.ng-invalid-required {
+  border-color: #FA787E !important; }
+
+.nav-danger {
+  background-color: #f2dede; }
+
+.row {
+  margin: auto; }
+
+.autocrud-array-element {
+  background-color: #f3f3f3;
+  width: 100%; }
+  .autocrud-array-element .row {
+    margin-bottom: 14px;
+    margin-top: 10px; }
+  .autocrud-array-element button {
+    text-align: center; }
+  .autocrud-array-element ul {
+    list-style-type: none;
+    color: #333;
+    font-weight: bold; }
+  .autocrud-array-element > div:first-of-type {
+    margin-top: 15px; }
+
+.autocrud-common-label {
+  text-align: center;
+  width: 100%;
+  padding: 7px 0;
+  margin-bottom: 0;
+  background-color: #333;
+  color: white;
+  border-radius: 6px 6px 0 0; }
+
+.autocrud-composition-element {
+  margin-top: 10px;
+  margin-bottom: 14px; }
+
+.autocrud-composition-parent-label {
+  width: 100%;
+  text-align: center;
+  padding: 15px 0;
+  background-color: #333;
+  border-radius: 10px 10px 0 0;
+  color: white;
+  font-weight: bold;
+  font-size: 110%; }
+
+.autocrud-array-remove {
+  position: relative;
+  top: 25px; }
+
+.autocrud-file-array-remove {
+  position: absolute;
+  bottom: 20px;
+  right: 40px; }
+
+.autocrud-array-add {
+  width: 80px; }
+  .autocrud-array-add .glyphicon {
+    position: initial; }
+
+.autocrud-carousel-image {
+  max-height: 200px; }
+
+.autocrud-file-element .carousel-inner {
+  background-color: #333; }
+.autocrud-file-element .carousel-control {
+  cursor: pointer; }

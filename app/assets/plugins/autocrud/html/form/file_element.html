@@ -1,0 +1,53 @@
+<div class="autocrud-file-element" ng-init="parentIndex = (e.array == true ? $index : -1)">
+	<!-- If it's part of an array (called inside array_element.html), parentIndex is > -1. If it's a single element, parentIndex = -1 -->
+	<label ng-if="parentIndex == -1" class="autocrud-common-label">{{e.label}}:</label>
+	<div ng-if="e.composition == undefined || e.composition == null">
+		<!-- Listing existing files -->
+		<div ng-if="e.chars.mode == 'file' || (e.chars.mode == 'file/image' && parentIndex > -1)">
+			<ul>
+				<li ng-if="parentIndex == -1" ng-repeat="f in fCtrl.curItem[e.name] track by $index">
+					<a href="{{!!e.folder ? e.folder + '/' + f.filename : f.filename}}">{{f.filename}}&nbsp;&nbsp;</a>
+				</li>
+				<li ng-if="parentIndex > -1" ng-init="fCtrl.curItem[e.name][parentIndex] = isArray(fCtrl.curItem[e.name][parentIndex]) ? fCtrl.curItem[e.name][parentIndex] : [fCtrl.curItem[e.name][parentIndex]]" 
+				ng-repeat="f in fCtrl.curItem[e.name][parentIndex] track by $index">
+					<a href="{{!!e.folder ? e.folder + '/' + f.filename : f.filename}}">{{f.filename}}&nbsp;&nbsp;</a>
+				</li>
+			</ul>
+		</div>
+		<!-- Listing recently added files -->
+		<ul>
+			<li ng-if="parentIndex == -1 && !!e.auxModel[0]" ng-repeat="f in e.auxModel track by $index">
+				{{f.filename}}&nbsp;&nbsp;
+			</li>
+			<li ng-if="parentIndex > -1" ng-repeat="f in e.auxModel[parentIndex] track by $index">
+				{{f.filename}}&nbsp;&nbsp;
+			</li>
+		</ul>
+		<!-- - - - - - - - - - - -  -->
+		<!-- Listing existing images in a gallery -->
+		<div ng-if="parentIndex == -1 && e.chars.mode == 'file/image'">
+		<div ng-if="!!fCtrl.curItem[e.name] && fCtrl.curItem[e.name].length > 0">
+			<uib-carousel interval="5000" no-wrap="false">
+				<uib-slide ng-repeat="imgObj in fCtrl.curItem[e.name] track by $index" active="active">
+					<img ng-src="{{!!e.folder ? e.folder + '/' + imgObj.filename : imgObj.filename }}" style="margin:auto;"
+					class="autocrud-carousel-image">
+				</uib-slide>
+			</uib-carousel>
+			<br/>
+		</div>
+		</div>
+		<!-- - - - - - - - - - - - - - - - - - -  -->
+	</div>
+	<div ng-if="!!e.composition">
+		<!-- HAVE A THUMB IMAGE NEXT TO THE INPUT. WHEN CLICKED, AMPLIFY IT (just like Facebook). -->
+	</div>
+	<div class="row">
+		<div class="col-xs-8">
+			<custom-input></custom-input>
+		</div>
+		<div class="col-xs-2">
+			<button ng-if="parentIndex == -1" class="btn btn-md btn-default" ng-click='e.auxModel = (isArray(e.auxModel) ? [] : null)'>Limpar</button>
+			<button ng-if="parentIndex > -1" class="btn btn-md btn-default" ng-click='e.auxModel[parentIndex] = (isArray(e.auxModel[parentIndex]) ? [] : null)'>Limpar</button>
+		</div>
+	</div>
+</div>

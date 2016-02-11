@@ -1,0 +1,15 @@
+.custom-modal-header{
+	padding:10px 15px !important;
+	background-color:#f8f8f8 !important;
+}
+.custom-tab-heading{
+	width: 100%;
+	padding-left:0;
+	margin-bottom: 15px;
+}
+.modal{
+	overflow:auto !important;
+}
+.modal-dialog{
+	width: 700px !important;
+}

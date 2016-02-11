@@ -1,0 +1,46 @@
+<!-- Search bar -->
+<div class="row" ng-init="search = {}">
+	<div class="col-lg-5">
+		<div class="input-group">
+			<div class="input-group-btn">
+				<button type="button" class="btn btn-default">
+					<i class="glyphicon glyphicon-search"></i>
+				</button>
+			</div>
+      <input class="form-control" n style="display:inline" type="text" ng-model="search.$"
+       placeholder="Pesquise aqui..."/>
+		</div>
+	</div>
+</div>
+
+<!-- Listing table -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<!-- Display result quantity -->
+		<i>{{(data | filter:search).length}} resultado{{((data | filter:search).length > 1) ? "s" : ''}}</i>
+	</div>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th ng-repeat="lh in listHeader">
+					{{lh.label}} {{!!lh.compositionLabel ? "(" + lh.compositionLabel + ")" : ""}}:
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr dir-paginate="d in data | filter: search | itemsPerPage: paginateOptions.itemsPerPage"
+			 ng-click="ctrl.edit(d)" class="autocrud-table-row">
+				<td ng-repeat="lh in listHeader">
+					<span autocrud-list-td="d[lh.name]"></span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="text-center">
+		<dir-pagination-controls template-url="plugins/pagination/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	<div class="panel-footer">
+		<button ng-click="ctrl.newItem()" ng-if="!!ctrl.dataService.objectProperties.creates"
+		 class="btn btn-md btn-success">Novo</button>
+	</div>
+</div>

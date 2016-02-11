@@ -1,0 +1,25 @@
+<% content_for :javascripts do %>
+  <%= javascript_include_tag 'plugins/pagination/dirPagination.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/utils.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/auto-crud.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/formcontroller.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/inputshandler.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/directives.js' %>
+
+  <%= javascript_include_tag 'plugins/bootstrap-dialog/bootstrap-dialog.min.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/fileupload.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/datetimepicker.js' %>
+  <%= javascript_include_tag 'plugins/autocrud/mount-html.js' %>
+<% end %>
+
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag 'plugins/bootstrap-dialog/bootstrap-dialog.min.css' %>
+  <%= stylesheet_link_tag 'plugins/autocrud/css/form.css' %>
+  <%= stylesheet_link_tag 'plugins/autocrud/css/listing.css' %>
+  <%= stylesheet_link_tag 'plugins/autocrud/css/modal-content.css' %>
+<% end %>
+<div ng-controller="CrudableController as crudCtrl">
+	<crudable attrs="crudCtrl.attrs" data="crudCtrl.dados" paginate-options="crudCtrl.paginateOptions"
+	 object-properties="crudCtrl.objectProperties" plugin-path="/assets/plugins/autocrud">
+	</crudable>
+</div>

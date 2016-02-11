@@ -1,0 +1,49 @@
+<!-- Search Bar -->
+<div class="row" ng-controller="PesquisaController as pCtrl">
+  <div class="col-lg-5">
+    <div class="input-group">
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default">
+          <i class="glyphicon glyphicon-search"></i>
+        </button>
+            </div>
+            <input class="form-control" style="display:inline" type="text"
+            ng-model="pCtrl.search.$" placeholder="Pesquise aqui..."/>
+        </div>
+  </div>
+</div>
+<!-- /Search Bar -->
+
+<!-- Listing table -->
+<div ng-controller="ListagemController as lCtrl">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <i>{{(lCtrl.dados | filter:lCtrl.search).length}} resultados</i>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <%= yield :tableHeaders %>
+        </tr>
+      </thead>
+      <tbody>
+        <tr dir-paginate="tupla in lCtrl.dados | filter:lCtrl.search | itemsPerPage: 2"
+         current-page="paginaAtual" style="width:auto" ng-click="lCtrl.editar(tupla.id)">
+          <td ng-repeat="campo in lCtrl.campos">
+            {{tupla[campo] != "" ? tupla[campo] : "-"}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-center">
+      <dir-pagination-controls>
+      </dir-pagination-controls>
+    </div>
+    <!-- Adding item -->
+    <div class="row">
+      <div class="col-lg-1">
+        <button ng-click="lCtrl.novo()" class="btn btn-md btn-success btn-block">+</button>
+      </div>
+    </div>
+  </div>
+</div>

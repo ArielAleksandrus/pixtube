@@ -1,0 +1,120 @@
+<% content_for :head do %>
+  <title>videos</title>
+<% end %>
+
+<% content_for :pageDescription do %>
+Listagem de videos
+<% end %>
+
+<br>
+
+<%= javascript_tag do %>
+var _dados = [
+  <% @videos.each do |video| %>
+  {
+    id: <%= video.id %>,
+    title: '<%= video.title %>',
+    desc: <%== js_echo_var(video.desc) %>,
+    duration: <%== js_echo_var(video.duration) %>,
+    views: <%= video.views %>,
+    rating: '<%= video.likes %>/<%= video.dislikes %>',
+    poster: [<%== js_echo_var(video.poster) %>]
+  },
+  <% end %>
+];
+for(var i in _dados){
+	if(!!_dados[i].duration){
+		var segundos = Math.ceil(_dados[i].duration / 1000);
+		var horas = Math.floor(segundos / 3600);
+		var minutos = Math.floor((segundos - (horas * 3600)) / 60);
+		segundos -= horas * 3600 + minutos * 60;
+		_dados[i].duration = horas + "h " + minutos + "m " + segundos + "s";
+	}
+}
+console.log(_dados);
+var _attrs = [{
+  name: 'id',
+  list: false,
+  onForm: false,
+  description: ['id']
+},{
+  name: 'title',
+  list: true,
+  label: 'Título',
+  error: 'Título deve possuir entre 4 e 32 letras',
+  description: ['text', 'minlength=4', 'maxlength=32', 'unique-index=videos', 'required']
+},{
+	name: 'duration',
+	list: true,
+	label: 'Duração',
+	description: ['text', 'disabled']
+},{
+  name: 'desc',
+  list: true,
+  label: 'Descrição',
+  description: ['textarea', 'cols=40', 'rows=4']
+},{
+  name: 'views',
+  list: true,
+  label: 'Visualizações',
+  description: ['int', 'disabled']
+},{
+  name: 'rating',
+  list: true,
+  label: 'Gostei/Não gostei',
+  description: ['text', 'disabled']
+},{
+  name: 'poster',
+  list: true,
+  listSize: 'big',
+  onForm: false,
+  label: 'Poster',
+  description: ['file', 'image']
+},{
+  name: 'outros',
+  list: false,
+  label: 'Outros',
+  description: ['custom'],
+  html: '<a class="btn btn-md btn-primary" style="width:100%" href="/videos/watch/{{fCtrl.curItem.id}}">Assistir</a>\
+  <a class="btn btn-md btn-primary" style="width:100%" href="/videos/{{fCtrl.curItem.id}}/poster">Mudar capa</a>\
+  <a class="btn btn-md btn-primary" style="width:100%" href="/videos/{{fCtrl.curItem.id}}/tags">Mudar arquivo de anotações</a>'
+}];
+(function(){
+  var app = angular.module('pagina', ['auto-crud']);
+  app.controller('CrudableController', function($http){
+    var ctrl = this;
+
+    var helper = globalUtils.helpers;
+
+    ctrl.dados = _dados;
+    ctrl.attrs = _attrs;
+
+    ctrl.paginateOptions = {itemsPerPage: 10};
+    ctrl.objectProperties = {
+      name: 'Vídeo',
+      baseUrl: 'videos',
+      edits: {
+        url: ':id',
+        method: 'patch',
+        also: {
+          utf8: '✓',
+          authenticity_token: $('meta[name=csrf-token]').attr('content')
+        }
+      },
+      uniqueUrl: 'unique'
+    };
+
+    return ctrl;
+  });
+  
+})();
+<% end %>
+
+
+<% content_for :main do %>
+  <div ng-app="pagina">
+    <%= render 'shared/autocrud/autocrud' %>
+  </div>
+<% end %>
+
+<%= render 'shared/sbadmin/sb_admin' %>

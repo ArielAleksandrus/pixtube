@@ -1,0 +1,35 @@
+<!-- Handle simple inputs and file -->
+<span ng-if="e.mode == 'file'">
+	<!-- Existent Gallery -->
+	<label ng-if="!!model">
+		Imagens Existentes:
+	</label>
+	<br/>
+	<span ng-if="isArray(model)">
+		<img class="gallery-image" ng-repeat="img in model" 
+		 ng-src="{{img}}"/>
+		<br/>
+	</span>
+	<span ng-if="!isArray(model)">
+		<img class="gallery-image" ng-src="{{model}}"/>
+		<br/>
+	</span>
+
+	<!-- Gallery to upload -->
+	<label> A enviar: </label>
+	<br/>
+	
+	<span ng-if="e.attrs.multiple">
+	 	<img ng-repeat="img in fCtrl.filesToUpload" class="gallery-image"
+	 	 ng-src="{{img}}"
+	 	 ng-show="!!fCtrl.filesToUpload"/>
+	 	<br/>
+	 	<input type="file" name="{{e.name}}" ng-model="fCtrl.filesToUpload" multiple file-upload/>
+	</span>
+	<span ng-if="!e.attrs.multiple">
+		<img class="gallery-image" ng-src="{{fCtrl.filesToUpload}}"/>
+	 	<br/>
+	 	<input type="file" name="{{e.name}}" ng-model="fCtrl.filesToUpload" 
+	 	 class="form-control" file-upload/>
+	</span>
+</span>

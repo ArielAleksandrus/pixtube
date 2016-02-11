@@ -1,0 +1,139 @@
+<% content_for :head do %>
+<script src="//cdn.popcornjs.org/code/dist/popcorn.min.js"></script>
+<%= javascript_include_tag 'popcorn.capture.js' %>
+<% end %>
+<% content_for :pageDescription do %>
+    Capa
+<% end %>
+<% content_for :main do %>
+<div ng-app="pagina" ng-controller="MainController as mCtrl">
+  <div style="width:100%;text-align:center">
+      <video id="video1" controls preload="auto" width="640" height="264" src="<%= @video.file %>" get-video-frames>
+        <source src="<%= @video.file %>" type="video/<%= @video.file.file.filename.last(3) %>">
+      </video>
+      <br/>
+      <button ng-show="mCtrl.slides.length == 10" ng-click="mCtrl.captureImage()">Capturar</button>
+  </div>
+  <br/>
+  <hr/>
+
+  <b ng-if="mCtrl.slides.length < 10">
+  	<i class="fa fa-spinner fa-spin"></i> Carregando imagem {{mCtrl.slides.length}} de 10
+  </b>
+
+  <br/>
+
+  <label>Imagem Selecionada: </label><br/>
+  <div style="width:100%;text-align:center">
+  	<br/>
+    <img id="img0"/>
+    <i ng-if="!mCtrl.isSelected">(Nenhuma)</i>
+    <br/>
+    <br/>
+    <button ng-show="mCtrl.isSelected" ng-click="mCtrl.cleanSelection()">Limpar</button>
+  	<button ng-show="mCtrl.isSelected" ng-click="mCtrl.send()">Enviar</button>
+  </div>
+  <br/>
+
+
+  <hr/>
+
+  <uib-carousel interval="mCtrl.interval" no-wrap="mCtrl.noWrapSlides">
+  	<uib-slide ng-repeat="slide in mCtrl.slides" active="slide.active">
+  		<img ng-src="{{slide.image}}" style="margin:auto;">
+  		</uib-slide>
+  	</uib-slide>
+  </uib-carousel>
+
+  <br/>
+  <div style="width:100%;text-align:center">
+  	<button ng-show="mCtrl.slides.length == 10" ng-click="mCtrl.selectImage()">Selecionar</button>
+  </div>
+</div>
+<script>
+var $pop, video, pace, current;
+slides = [];
+current = document.getElementById("img0");
+video = document.getElementById("video1");
+
+(function(){
+	var app = angular.module('pagina', ['ui.bootstrap']);
+	app.service('DataService', function(){
+		return {
+			slides: []
+		};
+	});
+	app.controller('MainController', ['$http', 'DataService', function($http, DataService){
+		var ctrl = this;
+
+		ctrl.interval = 5000;
+		ctrl.noWrapSlides = false;
+		ctrl.slides = DataService.slides;
+		ctrl.isSelected = false;
+
+		ctrl.selectImage = function(){
+			for(var i in DataService.slides){
+				if(DataService.slides[i].active)
+					current.src = DataService.slides[i].image;
+			}
+			ctrl.isSelected = true;
+		};
+		ctrl.captureImage = function(){
+			$pop.capture({
+				target: 'img#img0'
+			});
+			ctrl.isSelected = true;
+		};
+		ctrl.cleanSelection = function(){
+			current.src = "";
+			ctrl.isSelected = false;
+		};
+		ctrl.send = function(){
+			$http.post('/videos/<%= @video.id %>/posterUpload', {
+				poster: current.src,
+				authenticity_token: $('meta[name=csrf-token]').attr('content')
+			}).then(function(successResponse){
+				if(successResponse.data.status == "success")
+					alert("Poster enviado com sucesso");
+				else
+					alert("Erro ao enviar o poster");
+			}, function(errorResponse){
+				alert("Erro do servidor. Cod: " + errorResponse.status)
+			});
+		};
+
+		return ctrl;
+	}]);
+	app.directive('getVideoFrames', ['$interval', 'DataService', function($interval, DataService){
+		var i = 0;
+		return {
+			restrict: 'A',
+			link: function(scope, element, attrs){
+				var getFrameTimeout;
+				$pop = Popcorn("#video1");
+				pace = <%= @video.duration / 1000 %> / 10;
+
+				getFrameTimeout = $interval(function(){
+					if(video.readyState != 4)
+						return;
+					var x = $pop.capture({
+						at: pace*i
+					});
+					if(i > 0)
+						DataService.slides.push({image: x.media.poster});
+					
+					if(i == 10){
+						$interval.cancel(getFrameTimeout);
+					}
+
+					console.log(DataService.slides, pace*i);
+					i++;
+				}, 1000);
+			}
+		}
+	}])
+})();
+</script>
+<% end %>
+
+<%= render 'shared/sbadmin/sb_admin' %>

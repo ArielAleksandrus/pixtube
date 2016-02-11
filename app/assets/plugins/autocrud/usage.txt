@@ -1,0 +1,74 @@
+Welcome to autocrud!
+
+Author: Ariel Aleksandrus
+Licence: MIT
+
+Autocrud is a tool written in javascript and html that simplifies CRUDing elements.
+You define the inputs in a json array, and supply the tool with an array of objects that were already created (to be listed or edited).
+
+FIRST STEP: supply the tool with your database's object
+E.g. (in Rails):
+
+var users = [
+  <% @users.each do |user| %>
+  {
+    id: '<%= user.id %>',
+    name: '<%= user.name %>',
+    birthdate: '<%= user.birthdate %>',
+    picture: '<%= user.picture %>',
+    password: '', // now, we wouldn't want to display user's passwords, would we?
+    email: '<%= user.email %>',
+    phonenumbers: [
+	    <% user.phonenumbers.each do |phone| %>
+	    {
+	    	type: '<%= phone.type %>', // home, work, cellphones, etc
+	    	number: '<%= phone.number %>'
+	    },
+	    <% end %>
+    ]
+  },
+  <% end %>
+];
+
+SECOND STEP: define the data modeling (and inputs).
+var inputs = [{
+	name: 'id', // the name of the property that will be sent to the server.
+	show: false, // true if you want this attribute to be shown in the list.
+	display: false, // false if you don't want it to be displayed in the form.
+	description: ['id'] //
+},{
+	name: 'name',
+	label: 'Name', // the content of the label when listing the items and when displaying the form.
+	show: true,
+	edit: true, // false if this is a read-only attribute.
+	description: ['text', 'required', 'minlength=4', 'maxlength=16' 'unique-index']
+}{
+	name: 'birthdate',
+	label: 'Birth Date',
+	show: true,
+	edit: true,
+	description: ['date', 'nofuture']
+}];
+
+ STEP: add auto-crud to your module's dependencies.
+E.g.:
+(function(){
+  var app = angular.module('pagina', ['auto-crud']);
+  app.controller('CrudableController', function($http){
+    var ctrl = this;
+
+    var helper = globalUtils.helpers;
+
+    globalUtils.helpers.initData(_dados, _attrs);
+
+    ctrl.paginateOptions = {itemsPerPage: 10};
+    ctrl.objectProperties = {
+      name: 'sabor_pizza',
+      url: 'sabor_pizzas',
+      label: 'Sabores de pizza'
+    };
+
+    return ctrl;
+  });
+  
+})();

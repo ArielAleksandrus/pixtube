@@ -1,0 +1,10 @@
+<select ng-if="e.mode == 'select'" ng-model="model" class="form-control"
+ ng-options="item.value as item.label for item in e.options"
+ ng-required="e.attrs.required" unique-index="{{e.attrs.uniqueIndex}}"
+ ng-disabled="!e.edit" popover="{{e.error}}">
+</select>
+
+<input ng-if="e.mode == 'typeahead'" type="text" ng-model="e.auxModel" placeholder="Selecione"
+ typeahead="item as item.label for item in e.options| filter: $viewValue | orderBy: 'label'"
+ class="form-control" ng-required="e.attrs.required" popover="{{e.error}}"
+ typeahead-editable="false" typeahead-on-select="model = e.auxModel.value"/>

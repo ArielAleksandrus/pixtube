@@ -1,0 +1,14 @@
+<input ng-if="e.tag == 'input' && e.mode != 'date' && e.mode != 'datetime' && e.mode != 'file'" 
+ class="form-control" 
+ min="{{e.attrs.min}}" max="{{e.attrs.max}}" popover="{{e.error}}"
+ ng-minlength="e.attrs.minlength" ng-maxlength="e.attrs.maxlength"
+ ng-pattern='e.attrs.pattern'ng-required="e.attrs.required"name="{{e.name}}"
+ ng-model="model" unique-index="{{e.attrs.uniqueIndex}}" type="{{e.type}}"
+ ng-disabled="!e.edit" />
+
+<textarea ng-if="e.tag == 'textarea'" ng-model="model" class="form-control"
+ rows="{{e.attrs.rows}}" cols="{{e.attrs.cols}}" ng-disabled="!e.edit"
+ ng-minlength="e.attrs.minlength" ng-maxlength="e.attrs.maxlength"
+ ng-pattern='e.attrs.pattern'ng-required="e.attrs.required"name="{{e.name}}"
+ unique-index="{{e.attrs.uniqueIndex}}">
+</textarea>

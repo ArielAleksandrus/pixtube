@@ -1,0 +1,39 @@
+.autocrud-table-row{
+	td{
+		cursor:pointer;
+	}
+}
+.autocrud-listing-image{
+	float:left;
+}
+.autocrud-listing-image-small{
+	@extend .autocrud-listing-image;
+	width:50px;
+	max-height: 60px;
+}
+.autocrud-listing-image-medium{
+	@extend .autocrud-listing-image;
+	width:80px;
+	max-height: 96px;
+}
+.autocrud-listing-image-big{
+	@extend .autocrud-listing-image;
+	width:120px;
+	max-height: 145px;
+}
+.autocrud-listing-image-composition{
+	float:left;
+	vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 120px;
+
+	img{
+		float:none !important;
+		width: 100px;
+    height: 100px;
+	}
+	span{
+		display: block;
+	}
+}
